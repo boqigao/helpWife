@@ -1,0 +1,40 @@
+import pandas as pd
+
+itemData = pd.read_excel('item.xlsx', sheet_name='ロイヤルウッド ')
+seriesData = pd.read_excel('series.xlsx', sheet_name='ロイヤルウッド  (2)')
+archlogData = pd.read_excel('TOLI_2020-10-05.xlsx', sheet_name='Source')
+archlogData.fillna('', inplace=True)
+
+# 从第三行开始修改archlog的数据
+archlogRowCount = 1
+
+# here we copy i times of each row in seriesData to archlogData
+for rowSeries in seriesData.itertuples():
+    productNameSeries = getattr(rowSeries, '製品名')
+
+    # see how many products are in a series
+    itemCount = 0
+    for rowItem in itemData.itertuples():
+        productNameItem = getattr(rowItem, '製品名')
+        if productNameItem == productNameSeries:
+            itemCount += 1
+
+    # copy #iterCount times to archlog Data
+    for i in range(0, itemCount):
+        for cor in archlogData.columns:
+            for cor2 in seriesData.columns:
+                if cor == cor2:
+                    archlogData.at[archlogRowCount, cor] = getattr(rowSeries, cor2)
+
+        archlogRowCount += 1
+'''
+# here we copy right value from itemData to archlogData
+archlogRowCount = 1
+for rowItems in itemData.itertuples():
+    for cor3 in archlogData.columns:
+        for cor4 in itemData.columns:
+            if cor3 == cor4:
+                archlogData.at[archlogRowCount, cor3] = getattr(rowItems, cor4)
+    archlogRowCount += 1
+    '''
+archlogData.to_excel("test.xlsx")
